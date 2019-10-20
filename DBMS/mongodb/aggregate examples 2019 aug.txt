@@ -1,0 +1,134 @@
+db.movie.aggregate([{$match:{price:{$gt:250}}},
+                    {$project:{name:1,price:1,_id:0}},
+                     {$sort:{name:1}},
+                     {$limit:3}])
+
+
+---find 3 movies which ticket prices are hisghest 
+arrange it on name
+
+......sort on price
+......find first 3
+.......sort again on name
+
+find().sort(price).limit(2).sort(name).skip(3)
+
+db.movie.aggregate([
+   {$sort:{price:-1}},
+   {$limit:3} ,
+   {$sort:{name:1}},
+   {$project:{name:1,price:1,_id:0}},
+   {$match:{}},
+   {$sort::{}} 
+    
+])
+
+--------find second highest priced movie
+------sort price - -1
+------skip 1
+------limit 1
+---project  name,price
+
+3. find sum of prices of all movies
+----
+
+db.movie.aggregate([{$group:{_id:null,sum:{$sum:"$price"},maximum:{$max:"$price"},minimum:{$min:"$price"},count:{$sum:1}}}])
+
+
+aaaa 1
+bbb  1
+ccccc 1 
+ddd    1
+
+
+
+$ group ----sum,avg,min,max,count
+
+---------find sum of prices of all movies whose name starts 
+with k also display how many movies are there
+....match  ---- {name:/^k/}
+....group  -----{_id:null,sum:{$sum:'$price'},count:{$sum:1}} 
+
+db.movie.aggregate([
+{$match:{name:/^k/}},
+{$group:{_id:null,sum:{$sum:'$price'},count:{$sum:1}}}
+])
+
+------find sum of all prices rating wise
+t
+3 ---- 3456
+4------4567
+5------5678
+db.movie.aggregate([{$group:{_id:"$rating",sum:{$sum:"$price"},maximum:{$max:"$price"},count:{$sum:1}}])
+
+-------find sum of all prices rating wise but display only 
+if the sum is >600
+
+{$group:{_id:"$rating",sum:{$sum:'$price'},count:{$sum:1}}}
+{$match:{sum:{$gt:600}}}
+
+
+
+
+
+a  200 3 203
+b 300 4  304 
+
+$add:["$price","$rating"]
+
+{$project:{name:1,price:1,rating:1,addition:{$add:["$price","$rating"]}}
+
+db.movie.aggregate([{$match:{rating:{$gt:3}}},{$project:{name:{$toLower:'$name'}})
+
+
+-----display all movie names,
+price,ticket_number,price*1.10/3,
+first 5 letters of movie name in uppercase
+
+$divide:[{$multiply:["$price",1.10]},3]
+$toUpper:{$substr:["$name",0,5]}
+
+
+db.movie.aggregate([
+{$project:{name:1,price:1,ticket_no:1,
+calculation:{$divide:[{$multiply:["$price",1.10]},3]},
+"upper name":{$toUpper:{$substr:["$name",0,5]}}}}
+])
+
+{empno:111,ename:"Kishori",dept:"hr",sal:333}
+------display empno,ename,salary,email 
+
+to generate email concatenate
+1st 3 characters of ename , . ,2 letters of dept,
+@mycompany.com
+
+kis.hr@mycompany.com
+
+db.movie.aggregate([
+{$project:{ename:1,empno:1,sal:1,email:{$concat:[{$substr:["$name",0,3]},".",{$substr:["$dept",0,2]},"@mycompany.com"]}}}
+])
+
+db.movie.aggregate([{$match:{name:"kahani"}},
+{$unwind:"$actor"},
+{$group:{_id:"$name",count:{$sum:1}}}
+])
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
